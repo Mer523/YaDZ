@@ -1,16 +1,28 @@
-# This is a sample Python script.
+import requests
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+class YaUploader:
+    def __init__(self, _token: str):
+        self.token = _token
+
+    def upload(self, file_path):
+        url = "https://cloud-api.yandex.net/v1/disk/resources/upload"
+        filename = file_path.split('/', )[-1]
+        headers = {"Content-Type": "application/json", "Authorization": "OAuth {}".format(self.token)}
+        params = {"path": f"Загрузки/{filename}", "overwrite": "true"}
+        _response = requests.get(url, headers=headers, params=params).json()
+        href = _response.get("href", "")
+        responce = requests.put(href, data=open(file_path, "rb"))
+        responce.raise_for_status()
+        if responce.status_code == 201:
+            return "Успешно"
+        else:
+            return f"Ошибка загрузки! Код ошибки: {responce.status_code}"
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+if __name__ == "__main__":
+    path_to_file = "/Cat.py"
+    token = "............ "
+    uploader = YaUploader(token)
+    print(f"Загружаем файл {path_to_file.split('/', )[-1]} на Яндекс.Диск")
+    result = uploader.upload(path_to_file)
+    print(result)
